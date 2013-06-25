@@ -33,8 +33,11 @@ class deletedate:
 		num=0
 		for host in self.host_list:
 			print host+self.user_list[num]+self.passwd_list[num]+self.db_list[num]
-			#try:	
-				#con=MySQLdb.connect(host=host,user=user_list[num],passwd=passwd_list[num],db=db_list[num])
+			try:	
+				con=MySQLdb.connect(host=host,user=self.user_list[num],passwd=self.passwd_list[num],db=self.db_list[num])
+			except Exception, e:
+				print e
+				sys.exit()
 			num=num+1
 		
 
