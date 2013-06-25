@@ -39,6 +39,7 @@ class deletedate:
 	def deletedate(self):
 		num=0
 		for host in self.host_list:
+			print "***begin:****"
 			print host+"###"+self.user_list[num]+"###"+self.passwd_list[num]+"###"+self.db_list[num]+"###"+self.table_list[num]+"###"+self.column_list[num]+"###"+self.column_values_list[num]+"###"+self.limit_count_list[num]
 			try:	
 				con=MySQLdb.connect(host=host,user=self.user_list[num],passwd=self.passwd_list[num],db=self.db_list[num])
@@ -46,19 +47,41 @@ class deletedate:
 				print e
 				sys.exit()
 			cursor=con.cursor()
-			sql="DELETE FROM {0} where {1}={2} limit {3}"
-			print sql
-			print sql.format(self.table_list[num],self.column_list[num],self.column_values_list[num],self.limit_count_list[num])
+			sql_select="SELECT COUNT(*) FROM {0} where {1}={2}"
+			sql_delete="DELETE FROM {0} where {1}={2} limit {3}"
+			print "sql_delete is: "+sql_delete
+			print "sql_delete is: "+sql_delete.format(self.table_list[num],self.column_list[num],self.column_values_list[num],self.limit_count_list[num])
+			print "sql_select is: "+sql_select
+			print "sql_select is: "+sql_select.format(self.table_list[num],self.column_list[num],self.column_values_list[num])
 			try:
-				n=cursor.execute(sql.format(self.table_list[num],self.column_list[num],self.column_values_list[num],self.limit_count_list[num]))
-				con.commit()
-				print "deletedate num is: "+str(n)
-			except Exception, e:
-				print e
+				cursor.execute(sql_select.format(self.table_list[num],self.column_list[num],self.column_values_list[num]))
+				row=cursor.fetchone()
+				print "select_count is :"+str(row[0])
+			except MySQLdb.Error,e:
+				print "select_count is error!"
+				print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+			#print int(row[0])>int(self.limit_count_list[num])
+			if int(row[0])>int(self.limit_count_list[num]):
+				print "The table con't deleteall in once"
+				for limit_count in range(0,int(row[0]),int(self.limit_count_list[num])):
+					try:
+						n=cursor.execute(sql_delete.format(self.table_list[num],self.column_list[num],self.column_values_list[num],self.limit_count_list[num]))
+						con.commit()
+						print "deletedate num is: "+str(n)
+					except MySQLdb.Error,e:
+						print "delect_date is error!"
+						print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+			else:
+				try:
+					n=cursor.execute(sql_delete.format(self.table_list[num],self.column_list[num],self.column_values_list[num],self.limit_count_list[num]))
+					con.commit()
+					print "deletedate num is: "+str(n)
+				except MySQLdb.Error,e:
+					print "delect_date is error!"
+					print "Mysql Error %d: %s" % (e.args[0], e.args[1])
 			cursor.close()
 			con.close()
-			num=num+1
-		
+			print "***end***"	
 
 if __name__ == '__main__':
 	dd=deletedate("datelist.ini");
