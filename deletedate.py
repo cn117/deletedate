@@ -6,6 +6,7 @@ import time
 import sys
 import logging
 import logging.config
+import threading
 class deletedate:
 	config_name=""
 	host_list=[]
@@ -128,6 +129,16 @@ class deletedate:
 			print "***end***"
 			self.logger.info("***end***")	
 
+class deletedate_thread(threading.Thread):
+    def __init__(self,num):
+        threading.Thread.__init__(self)
+        self.thread_num=num
+        self.thread_stop=False
+    def run(self):
+        print "run"
+    def stop(self):
+        self.thread_stop=True
+        
 if __name__ == '__main__':
 	logging.config.fileConfig('log.conf')
 	dd=deletedate("datelist.ini");
